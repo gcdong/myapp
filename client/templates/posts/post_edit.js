@@ -24,7 +24,7 @@ Template.postEdit.events({
             return Session.set('postEditErrors', errors);
         Posts.update(currentPostId, { $set: postProperties }, function(err) {
             if (err) { // 向用户显示错误信息 
-                throwError(err.reason);
+                Errors.throw(err.message);
             } else {
                 Router.go('postPage', { _id: currentPostId });
             }

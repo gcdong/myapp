@@ -7,7 +7,6 @@ Posts.allow({
     },
     remove: function(userId, post) {
         // 只允许修改自己的文章
-        return true;
         return ownsDocument(userId, post);
     }
 });
@@ -48,7 +47,7 @@ Meteor.methods({
         var errors = validatePost(postAttributes);
         if (errors.title || errors.url)
             throw new Meteor.Error('invalid-post', "你必须为你的帖子填写标题和 URL");
-        ß
+        
 
         var postWithSameLink = Posts.findOne({ url: postAttributes.url });
         if (postWithSameLink) {
@@ -62,7 +61,8 @@ Meteor.methods({
         var post = _.extend(postAttributes, {
             userId: user._id,
             author: user.username,
-            submitted: new Date()
+            submitted: new Date(),
+            commentsCount: 0
         });
 
         var postId = Posts.insert(post);

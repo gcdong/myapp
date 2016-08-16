@@ -27,7 +27,7 @@ Template.postSubmit.events({
 		Meteor.call('postInsert', post, function(err, res) {
 			// 显示错误信息并退出
 			if (err) {
-				return throwError(err.reason);
+				Errors.throw(err.message);
 			}
 
 			// 显示结果，跳转页面
