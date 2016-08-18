@@ -47,7 +47,7 @@ Meteor.methods({
         var errors = validatePost(postAttributes);
         if (errors.title || errors.url)
             throw new Meteor.Error('invalid-post', "你必须为你的帖子填写标题和 URL");
-        
+
 
         var postWithSameLink = Posts.findOne({ url: postAttributes.url });
         if (postWithSameLink) {
@@ -62,7 +62,9 @@ Meteor.methods({
             userId: user._id,
             author: user.username,
             submitted: new Date(),
-            commentsCount: 0
+            commentsCount: 0,
+            upvoters: [],
+            votes: 0
         });
 
         var postId = Posts.insert(post);
@@ -70,5 +72,20 @@ Meteor.methods({
         return {
             _id: postId
         };
+    },
+    upvote: function(postId) {
+        // 检查数据类型
+        check(this.userId, String);
+        check(postId, String);
+
+        var affected = Posts.update({
+            _id: postId,
+            upvoters: {$ne: this.userId}
+        },{
+            $addToSet: {upvoters: this.userId},
+            $inc: {votes: 1}
+        });
+        if (!affected) 
+            throw new Meteor.Error('invalid', "You weren't able to upvote that post");
     }
 });

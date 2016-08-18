@@ -1,6 +1,43 @@
-Template.postsList.helpers({
-	posts: function() {
-		// 按照提交时间降序排列
-		return Posts.find({}, {sort: {submitted: -1}});
-	}
+Template.postsList.onRendered(function() {
+
+    this.find('.wrapper')._uihooks = {
+        insertElement: function(node, next) {
+            $(node)
+                .hide()
+                .insertBefore(next)
+                .fadeIn();
+        },
+        moveElement: function(node, next) {
+            // 现在不做任何事情
+            var $node = $(node),
+                $next = $(next);
+            var oldTop = $node.offset().top;
+            var height = $node.outerHeight(true);
+
+            // 找出next和node之间的所有元素
+            var $inBetween = $next.nextUntil(node);
+            if ($inBetween.length === 0)
+                $inBetween = $node.nextUntil(next);
+
+            // 把node放在预订位置
+            $node.insertBefore(next);
+
+            // 测量新top偏移坐标
+            var newTop = $node.offset().top;
+            // 将 node *移回*至原始所在位置 
+            $node.removeClass('animate').css('top', oldTop - newTop);
+
+            $inBetween.removeClass('animate').css('top', oldTop < newTop ? height : -1 * height);
+
+            // 强制重绘 
+            $node.offset(); // 动画，重置所有元素的 top 坐标为 0 
+            $node.addClass('animate').css('top', 0);
+            $inBetween.addClass('animate').css('top', 0);
+        },
+        removeElement: function(node) {
+            $(node).fadeOut(function() {
+                $(this).remove();
+            });
+        }
+    }
 });
